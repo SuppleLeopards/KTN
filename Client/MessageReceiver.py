@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from threading import Thread
+from MessageParser import MessageParser
 
 class MessageReceiver(Thread):
     """
@@ -17,7 +18,12 @@ class MessageReceiver(Thread):
         self.daemon = True
 
         # TODO: Finish initialization of MessageReceiver
+        self.client = client
+        self.connection = connection
+        self.parser = MessageParser()
 
     def run(self):
         # TODO: Make MessageReceiver receive and handle payloads
-        pass
+        while True:
+            t = self.connection.recv(4096)
+            self.parser.parse(t)
