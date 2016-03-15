@@ -7,6 +7,17 @@ Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
 
+connected_clients = {}
+history = []
+
+help_text = 'Available requests:\n\
+            login <username> - log in with the given username\n\
+            logout - log out\n\
+            msg <message> - send message\n\
+            names - list users in chat\n\
+            help - view help text\n'
+
+
 class ClientHandler(SocketServer.BaseRequestHandler):
     """
     This is the ClientHandler class. Everytime a new client connects to the
@@ -14,6 +25,8 @@ class ClientHandler(SocketServer.BaseRequestHandler):
     only connected clients, and not the server itself. If you want to write
     logic for the server, you must write it outside this class
     """
+
+    username = ''
 
     def handle(self):
         """
@@ -31,16 +44,36 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             self.handle_msg(msg)
 
     def handle_msg(self, msg):
-        if msg["request"] == "logout":
+
+        if msg["request"] == "login":
+            if msg["content"] in connected_clients.keys():
+                self.send_message("The user " + msg["content"] + " is already logged in.")
+            else:
+                self.username = msg["content"]
+                connected_clients[self.username] = self
+                self.send_message("Login as " + self.username + " successful.")
+
+        elif msg["request"] == "logout":
+            del connected_clients[msg["content"]]
             self.connection.close()
-            #exit()
-        self.send_message(msg["content"])
 
-    def send_message(self, msg):
-        d = dict(timestamp=None, sender=None, response="msg", content=msg)
+        elif msg["request"] == "msg":
+            self.send_message(msg["content"])
+
+        elif msg["request"] == "names":
+            usernames = ''.join(connected_clients.keys())
+            self.send_message(usernames)
+
+        elif msg["request"] == "help":
+            usernames = ''.join(connected_clients.keys())
+            self.send_message(usernames)
+
+        else:
+            self.send_message("Invalid request.")
+
+    def send_message(self, timestamp, sender, response, content):
+        d = {"timestamp": timestamp, "sender": sender, "response": response, "content": content}
         self.connection.send(json.dumps(d))
-
-
 
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
