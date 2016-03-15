@@ -23,6 +23,9 @@ class Client:
         '''
         self.host = host
         self.server_port = server_port
+        #self.msgReceiver = MessageReceiver(self, self.connection)
+        self.msgParser = MessageParser()
+        self.username  = ""
         
         # TODO: Finish init process with necessary code
         self.d = dict(request=None, content=None)
@@ -34,9 +37,8 @@ class Client:
         print("Connected to server")
 
         while(True):
-            msg = raw_input("Skriv:")
-            self.check_msg(msg)
-            self.receive_message(self.connection.recv(4096))
+            command = raw_input("Skriv:")
+            self.check_msg(command)
 
 
         
@@ -44,10 +46,8 @@ class Client:
         # TODO: Handle disconnection
         self.connection.close()
 
-    def receive_message(self, message):
+    #def receive_message(self, message):
         # TODO: Handle incoming message
-        d = json.loads(message)
-        print d["content"]
 
     def send_payload(self, data):
         # TODO: Handle sending of a payload
@@ -58,14 +58,34 @@ class Client:
         pass
 
     def check_msg(self, msg):
-        i = msg.index(" ")
-        req = msg[0:i]
-        con = msg[i+1:]
+        req = ""
+        con = ""
+        msg.strip()
+        try:
+            i = msg.index(" ")
+            req = msg[0:i]
+            con = msg[i+1:]
+        except:
+            req = msg
+            con = None
         d = dict(request=req, content=con)
         print d
-        self.send_payload(d)
         if req == "logout":
+            self.send_payload(d)
             self.disconnect()
+        elif req == "login" and not con == None:
+            self.send_payload(d)
+        elif req == "msg" and not con == "":
+            self.send_payload(d)
+        elif req == "names" and con == "":
+            self.send_payload(d)
+        elif req == "help" and con == "":
+            self.send_payload(d)
+        else:
+            print ("Invalid command")
+
+
+
 
 
 if __name__ == '__main__':
