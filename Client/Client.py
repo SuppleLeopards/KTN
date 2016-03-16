@@ -71,7 +71,7 @@ class Client:
             req = msg
             con = None
         d = dict(request=req, content=con)
-        print d
+        #print d
         if req == "logout":
             self.send_payload(d)
             self.disconnect()

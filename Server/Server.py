@@ -22,6 +22,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
+        lol.add_thread(self)
 
         # Loop that listens for messages from the client
         while True:
@@ -38,10 +39,25 @@ class ClientHandler(SocketServer.BaseRequestHandler):
 
     def send_message(self, msg):
         d = dict(timestamp=None, sender=None, response="msg", content=msg)
-        self.connection.send(json.dumps(d))
+        lol.send_msg(json.dumps(d), self)
 
+    def send_msg(self, msg, thread):
+        if thread != self:
+            self.connection.send(msg)
 
+class Threads_Collector_Master_Pitate:
+    def __init__(self):
+        self.threads = []
 
+    def add_thread(self, thread):
+        self.threads.append(thread)
+
+    def remove_thread(self, thread):
+        self.threads.remove(thread)
+
+    def send_msg(self, msg, t):
+        for thread in self.threads:
+            thread.send_msg(msg, t)
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
@@ -63,6 +79,7 @@ if __name__ == "__main__":
     print 'Server running...'
 
     # Set up and initiate the TCP server
+    lol = Threads_Collector_Master_Pitate()
     server = ThreadedTCPServer((HOST, PORT), ClientHandler)
     server.serve_forever()
 """
