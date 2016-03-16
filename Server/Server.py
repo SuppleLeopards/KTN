@@ -1,11 +1,47 @@
 # -*- coding: utf-8 -*-
 import SocketServer
 import json
+import time
 
 """
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
+
+connected_clients = []
+history = []
+help_text = 'Available requests:\n\
+            login <username> - log in with the given username\n\
+            logout - log out\n\
+            msg <message> - send message\n\
+            names - list users in chat\n\
+            help - view help text\n'
+
+
+def getClients():
+    return connected_clients
+
+def setClient(username):
+    if not username in connected_clients:
+        connected_clients.append(username)
+        return True
+    else:
+        return False
+
+def removeClient(username):
+    if username in connected_clients:
+        connected_clients.remove(username)
+        return True
+    else:
+        return False
+
+
+def getHistory():
+    return history
+
+def setHistory(dict):
+    history.append(dict)
+
 
 class ClientHandler(SocketServer.BaseRequestHandler):
     """
@@ -22,6 +58,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
+        self.username = ""
         lol.add_thread(self)
 
         # Loop that listens for messages from the client
@@ -32,13 +69,34 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             self.handle_msg(msg)
 
     def handle_msg(self, msg):
-        if msg["request"] == "logout":
+        if msg["request"] == "login":
+            if msg["content"] in connected_clients:
+                self.send_message("The user " + msg["content"] + " is already logged in.")
+            else:
+                self.username = msg["content"]
+                connected_clients[self.username] = self
+                self.send_message("Login as " + self.username + " successful.")
+
+        elif msg["request"] == "logout":
+            del connected_clients[msg["content"]]
             self.connection.close()
-            #exit()
-        self.send_message(msg["content"])
+
+        elif msg["request"] == "msg":
+            self.send_message(msg["content"])
+
+        elif msg["request"] == "names":
+            usernames = ''.join(connected_clients.keys())
+            self.send_message(usernames)
+
+        elif msg["request"] == "help":
+            usernames = ''.join(connected_clients.keys())
+            self.send_message(usernames)
+
+        else:
+            self.send_message("Invalid request.")
 
     def send_message(self, msg):
-        d = dict(timestamp=None, sender=None, response="msg", content=msg)
+        d = dict(timestamp=time.time(), sender=None, response="msg", content=msg)
         lol.send_msg(json.dumps(d), self)
 
     def send_msg(self, msg, thread):

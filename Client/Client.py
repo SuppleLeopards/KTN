@@ -35,7 +35,7 @@ class Client:
     def run(self):
         # Initiate the connection to the server
 
-        print("Connected to server\nNå kan du skrive")
+        print("Connected to server\nKlar for input")
 
         while(True):
             command = raw_input()
@@ -71,18 +71,22 @@ class Client:
             req = msg
             con = None
         d = dict(request=req, content=con)
-        #print d
         if req == "logout":
+            print ("sender " + str(d))
             self.send_payload(d)
             self.disconnect()
         elif req == "login" and not con == None:
+            print ("sender " + str(d))
             self.send_payload(d)
         elif req == "msg" and not con == None:
+            print ("sender " + str(d))
             self.send_payload(d)
         elif req == "names":
+            print ("sender " + str(d))
             d["content"] = None
             self.send_payload(d)
         elif req == "help":
+            print ("sender " + str(d))
             d["content"] = None
             self.send_payload(d)
         else:
