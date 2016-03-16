@@ -23,7 +23,8 @@ class Client:
         '''
         self.host = host
         self.server_port = server_port
-        #self.msgReceiver = MessageReceiver(self, self.connection)
+        self.connection.connect((self.host, self.server_port))
+        self.msgReceiver = MessageReceiver(self, self.connection)
         self.msgParser = MessageParser()
         self.username  = ""
         
@@ -33,11 +34,11 @@ class Client:
 
     def run(self):
         # Initiate the connection to the server
-        self.connection.connect((self.host, self.server_port))
-        print("Connected to server")
+
+        print("Connected to server\nNå kan du skrive")
 
         while(True):
-            command = raw_input("Skriv:")
+            command = raw_input()
             self.check_msg(command)
 
 
@@ -46,8 +47,9 @@ class Client:
         # TODO: Handle disconnection
         self.connection.close()
 
-    #def receive_message(self, message):
+    def receive_message(self, message):
         # TODO: Handle incoming message
+        print message
 
     def send_payload(self, data):
         # TODO: Handle sending of a payload
@@ -60,7 +62,7 @@ class Client:
     def check_msg(self, msg):
         req = ""
         con = ""
-        msg.strip()
+        msg = msg.strip()
         try:
             i = msg.index(" ")
             req = msg[0:i]
@@ -75,11 +77,13 @@ class Client:
             self.disconnect()
         elif req == "login" and not con == None:
             self.send_payload(d)
-        elif req == "msg" and not con == "":
+        elif req == "msg" and not con == None:
             self.send_payload(d)
-        elif req == "names" and con == "":
+        elif req == "names":
+            d["content"] = None
             self.send_payload(d)
-        elif req == "help" and con == "":
+        elif req == "help":
+            d["content"] = None
             self.send_payload(d)
         else:
             print ("Invalid command")

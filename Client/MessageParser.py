@@ -7,11 +7,12 @@ class MessageParser():
         self.possible_responses = {
             'error': self.parse_error,
             'info': self.parse_info,
+            "msg": self.parse_msg
 	    # More key:values pairs are needed	
         }
 
     def parse(self, payload):
-        payload = json.load(payload)
+        payload = json.loads(payload)
 
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
@@ -20,9 +21,9 @@ class MessageParser():
             # Response not valid
 
     def parse_error(self, payload):
-        pass
+        return "Error: " + payload["content"]
     def parse_info(self, payload):
-        pass
+        return "Info: " + payload["content"]
     def parse_msg(self, payload):
-        pass
+        return payload["content"]
     # Include more methods for handling the different responses... 
