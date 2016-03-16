@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import SocketServer
 import json
-import time
-
+from time import strftime
 """
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
@@ -69,34 +68,43 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             self.handle_msg(msg)
 
     def handle_msg(self, msg):
+        print(msg)
         if msg["request"] == "login":
             if msg["content"] in connected_clients:
-                self.send_message("The user " + msg["content"] + " is already logged in.")
+                self.send_message("error", "The user " + msg["content"] + " is already logged in.")
             else:
                 self.username = msg["content"]
-                connected_clients[self.username] = self
-                self.send_message("Login as " + self.username + " successful.")
+                connected_clients.append(self.username)
+                print(getClients())
+                print(self.username)
+                self.send_message("info", "Login as " + self.username + " successful.")
 
         elif msg["request"] == "logout":
-            del connected_clients[msg["content"]]
+            try:
+                removeClient(self.username)
+            except:
+                pass
+            self.send_message(self, "Logout successful")
             self.connection.close()
 
         elif msg["request"] == "msg":
             self.send_message(msg["content"])
 
         elif msg["request"] == "names":
-            usernames = ''.join(connected_clients.keys())
+            usernames = '\n'.join(connected_clients)
             self.send_message(usernames)
 
         elif msg["request"] == "help":
-            usernames = ''.join(connected_clients.keys())
+            usernames = '\n'.join(connected_clients)
             self.send_message(usernames)
 
         else:
             self.send_message("Invalid request.")
 
-    def send_message(self, msg):
-        d = dict(timestamp=time.time(), sender=None, response="msg", content=msg)
+    def send_message(self, response, content, sender="Server"):
+        timestamp = strftime("%H:%M:%S")
+        d = dict(timestamp=timestamp, sender=sender, response=response, content=content)
+        print(d)
         lol.send_msg(json.dumps(d), self)
 
     def send_msg(self, msg, thread):
