@@ -1,7 +1,7 @@
-
 import json
 
-class MessageParser():
+
+class MessageParser:
     def __init__(self):
 
         self.possible_responses = {
@@ -10,7 +10,7 @@ class MessageParser():
             "msg": self.parse_msg,
             "history": self.parse_hist,
             "names": self.parse_names
-	    # More key:values pairs are needed	
+            # More key:values pairs are needed
         }
 
     def parse(self, payload):
@@ -22,15 +22,22 @@ class MessageParser():
             return None
             # Response not valid
 
-    def parse_error(self, payload):
-        return "Error: " + payload["content"]
-    def parse_info(self, payload):
-        return "Info: " + payload["content"]
-    def parse_msg(self, payload):
-        return payload["content"]
-    def parse_hist(self, payload):
-        pass
-    def parse_names(self,payload):
-        pass
 
-    # Include more methods for handling the different responses... 
+        # [20:00] Server: (Info) content...
+
+    def parse_error(self, payload):
+        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+
+    def parse_info(self, payload):
+        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+
+    def parse_msg(self, payload):
+        return payload["timestamp"] + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
+
+    def parse_hist(self, payload):
+        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+
+    def parse_names(self, payload):
+        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+
+        # Include more methods for handling the different responses...
