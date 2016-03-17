@@ -26,18 +26,18 @@ class MessageParser:
         # [20:00] Server: (Info) content...
 
     def parse_error(self, payload):
-        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_info(self, payload):
-        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_msg(self, payload):
-        return payload["timestamp"] + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
+        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_hist(self, payload):
-        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_names(self, payload):
-        return payload["timestamp"] + "Server: " + "(" + payload["response"] + ") " + payload["content"]
+        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
         # Include more methods for handling the different responses...
