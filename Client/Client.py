@@ -29,7 +29,7 @@ class Client:
         
         # TODO: Finish init process with necessary code
         self.d = dict(request=None, content=None)
-        self.run
+        self.run()
 
     def run(self):
         # Initiate the connection to the server

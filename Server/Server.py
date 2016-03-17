@@ -83,7 +83,8 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 connected_clients.append(self.username)
                 print(getClients())
                 print(self.username)
-                self.send_message("info", "Login as " + self.username + " successful.")
+                self.send_local(self.make_dict("info", "Login was sucsessful"))
+                self.send_message("info", self.username + " logged in")
 
         elif request == "logout":
             try:
