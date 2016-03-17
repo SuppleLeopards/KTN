@@ -29,7 +29,7 @@ def addClient(username, handler):
 
 def removeClient(username):
     if username in connected_clients:
-        connected_clients.remove(username)
+        connected_clients.pop(username)
         return True
     else:
         return False
@@ -42,10 +42,10 @@ def send_message(message, username):
     history.append(message)
     for key in connected_clients.keys():
         if not key == username:
-            connected_clients[key].connection.send(json.dumps(message))
+            connected_clients[key].send_msg(json.dumps(message))
 
 def send_history(username):
-    connected_clients[username].connection.send(json.dumps(history))
+    connected_clients[username].send_msg(json.dumps(history))
 
 
 def getHistory():
@@ -75,10 +75,15 @@ class ClientHandler(SocketServer.BaseRequestHandler):
 
         # Loop that listens for messages from the client
         while True:
-            received_string = self.connection.recv(4096)
+            try:
+                received_string = self.connection.recv(4096)
 
-            msg = json.loads(received_string)
-            self.handle_msg(msg)
+                msg = json.loads(received_string)
+                self.handle_msg(msg)
+            except:
+                self.logout()
+                break
+
 
     def handle_msg(self, msg):
         print(msg)
@@ -99,12 +104,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 self.send_message("info", self.username + " logged in")
 
         elif request == "logout":
-            try:
-                removeClient(self.username)
-                self.send_message("info", self.username + " logged out... RIP! much sad")
-                self.connection.close()
-            except:
-                pass
+            self.logout()
 
 
         elif request == "msg":
@@ -134,10 +134,17 @@ class ClientHandler(SocketServer.BaseRequestHandler):
     def make_dict(self, response, content, sender="Server"):
         return dict(timestamp=strftime("%H:%M:%S"), sender=sender, response=response, content=content)
 
-    def send_msg(self, msg, thread):
-        if thread != self:
+    def send_msg(self, msg):
+        try:
             self.connection.send(msg)
+        except:
+            removeClient(self.username)
+            self.connection.close()
 
+    def logout(self):
+        removeClient(self.username)
+        self.send_message("info", self.username + " logged out... RIP! much sad")
+        self.connection.close()
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
