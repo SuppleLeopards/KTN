@@ -70,7 +70,6 @@ class Client:
             req = msg
             con = None
         d = dict(request=req, content=con)
-        print("Sender:" + str(d))
         if req == "login" and not con == None:
             self.send_payload(d)
         elif req == "help":

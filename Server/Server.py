@@ -7,7 +7,7 @@ Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
 
-connected_clients = []
+connected_clients = {}
 history = []
 help_text = 'Available requests:\n\
             login <username> - log in with the given username\n\
@@ -20,9 +20,9 @@ help_text = 'Available requests:\n\
 def getClients():
     return connected_clients
 
-def setClient(username):
+def addClient(username, handler):
     if not username in connected_clients:
-        connected_clients.append(username)
+        connected_clients[username] = handler
         return True
     else:
         return False
@@ -37,6 +37,11 @@ def username_Taken(username):
     if username in connected_clients:
         return True
     return False
+
+def send_message(message, username):
+    for key in connected_clients.keys():
+        if not key == username:
+            connected_clients[key].connection.send(json.dumps(message))
 
 
 def getHistory():
@@ -63,7 +68,6 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         self.connection = self.request
         self.username = ""
         self.is_logged_in = False
-        lol.add_thread(self)
 
         # Loop that listens for messages from the client
         while True:
@@ -84,7 +88,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             else:
                 self.username = username
                 self.is_logged_in = True
-                connected_clients.append(self.username)
+                addClient(username, self)
                 print(getClients())
                 print(self.username)
                 self.send_local("info", "Loggin was sucsessfull")
@@ -121,7 +125,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
     def send_message(self, response, content, sender="Server"):
         d = self.make_dict(response, content, sender)
         #print(d)
-        lol.send_msg(json.dumps(d), self)
+        send_message(d, self.username)
 
     def make_dict(self, response, content, sender="Server"):
         return dict(timestamp=strftime("%H:%M:%S"), sender=sender, response=response, content=content)
@@ -130,19 +134,6 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         if thread != self:
             self.connection.send(msg)
 
-class Threads_Collector_Master_Pitate:
-    def __init__(self):
-        self.threads = []
-
-    def add_thread(self, thread):
-        self.threads.append(thread)
-
-    def remove_thread(self, thread):
-        self.threads.remove(thread)
-
-    def send_msg(self, msg, t):
-        for thread in self.threads:
-            thread.send_msg(msg, t)
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
@@ -164,7 +155,6 @@ if __name__ == "__main__":
     print 'Server running...'
 
     # Set up and initiate the TCP server
-    lol = Threads_Collector_Master_Pitate()
     server = ThreadedTCPServer((HOST, PORT), ClientHandler)
     server.serve_forever()
 """
