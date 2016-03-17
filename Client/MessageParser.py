@@ -1,4 +1,5 @@
 import json
+import operator
 
 
 class MessageParser:
@@ -35,6 +36,10 @@ class MessageParser:
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_hist(self, payload):
+        histlist = []
+        for dict in payload:
+            histlist.append(dict)
+        histlist.sort(key=lambda d: d['timestamp'])
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_names(self, payload):
