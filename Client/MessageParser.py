@@ -1,8 +1,5 @@
 import json
-import operator
 
-def exists(it):
-    return (it is not None)
 
 class MessageParser:
     def __init__(self):
@@ -38,7 +35,8 @@ class MessageParser:
 
     def parse_hist(self, payload):
         print(self.parse_msg(dict(timestamp="--:--:--", sender="Local", response="Info", content="History")))
-        for dict1 in payload["content"]:
+        list = payload["content"]
+        for dict1 in list:
             print(self.parse_msg(dict1))
         print(self.parse_msg(dict(timestamp="--:--:--", sender="Local", response="Info", content="End of History")))
 

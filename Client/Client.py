@@ -39,7 +39,8 @@ class Client:
         self.connection.close()
 
     def receive_message(self, message):
-        print message
+        if not message == None:
+            print message
 
     def send_payload(self, data):
         self.connection.send(json.dumps(data))

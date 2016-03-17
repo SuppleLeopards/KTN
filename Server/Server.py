@@ -17,9 +17,6 @@ help_text = '\nAvailable requests:\n\
             help - view help text\n'
 
 
-def exists(it):
-    return (it is not None)
-
 def getClients():
     return connected_clients
 
@@ -89,7 +86,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
 
 
     def handle_msg(self, msg):
-        print(msg)
+        #print(msg)
         request = msg["request"]
         content = msg["content"]
 
@@ -97,6 +94,8 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             username = msg["content"]
             if username_Taken(username):
                 self.send_local("error", "The username " + username + " is already taken.")
+            elif self.is_logged_in:
+                self.send_local("error", "You are already logged in as " + self.username)
             else:
                 self.username = username
                 self.is_logged_in = True
