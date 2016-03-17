@@ -1,6 +1,8 @@
 import json
 import operator
 
+def exists(it):
+    return (it is not None)
 
 class MessageParser:
     def __init__(self):
@@ -16,7 +18,6 @@ class MessageParser:
 
     def parse(self, payload):
         payload = json.loads(payload)
-
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
         else:
@@ -36,12 +37,10 @@ class MessageParser:
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + payload["content"]
 
     def parse_hist(self, payload):
-        histlist = []
-        for dict in payload:
-            histlist.append(dict)
-        histlist.sort(key=lambda d: d['timestamp'])
-        for dict in histlist:
-            self.parse_msg(dict)
+        print(self.parse_msg(dict(timestamp="--:--:--", sender="Local", response="Info", content="History")))
+        for dict1 in payload["content"]:
+            print(self.parse_msg(dict1))
+        print(self.parse_msg(dict(timestamp="--:--:--", sender="Local", response="Info", content="End of History")))
 
     def parse_names(self, payload):
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]

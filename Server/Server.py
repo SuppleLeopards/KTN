@@ -17,6 +17,9 @@ help_text = '\nAvailable requests:\n\
             help - view help text\n'
 
 
+def exists(it):
+    return (it is not None)
+
 def getClients():
     return connected_clients
 
@@ -41,8 +44,8 @@ def username_Taken(username):
 def send_message(message, username):
     history.append(message)
     for key in connected_clients.keys():
-        if not key == username:
-            connected_clients[key].send_msg(json.dumps(message))
+        #if not key == username:
+        connected_clients[key].send_msg(json.dumps(message))
 
 def send_history(username):
     connected_clients[username].send_msg(json.dumps(history))
@@ -118,8 +121,11 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         elif msg["request"] == "help":
             self.send_local("info", help_text)
 
+        elif msg["request"] == "history":
+            self.send_local("history", getHistory())
+
         else:
-            self.send_local(self.make_dict("error", "Message wrong"))
+            self.send_local("error", "Invalid command")
 
     def send_local(self, response, content, sender="Server"):
         self.connection.send(json.dumps(self.make_dict(response, content, sender)))

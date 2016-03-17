@@ -25,9 +25,9 @@ class MessageReceiver(Thread):
     def run(self):
         # TODO: Make MessageReceiver receive and handle payloads
         while True:
-            try:
+            #try:
                 t = self.connection.recv(4096)
                 self.client.receive_message(self.parser.parse(t))
-            except:
-                print("Disconnected")
-                break
+            #except:
+                #print("Disconnected")
+                #break

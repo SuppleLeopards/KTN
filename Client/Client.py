@@ -69,6 +69,8 @@ class Client:
         elif req == "names":
             d["content"] = None
             self.send_payload(d)
+        elif req == "history":
+            self.send_payload(d)
         else:
             print ("Invalid command")
 
