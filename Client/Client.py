@@ -17,24 +17,16 @@ class Client:
 
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        '''
-        self.connection.bind((host,server_port))
 
-        self.connection.listen(5)
-        '''
         self.host = host
         self.server_port = server_port
         self.connection.connect((self.host, self.server_port))
         self.msgReceiver = MessageReceiver(self, self.connection)
         self.msgParser = MessageParser()
         
-        # TODO: Finish init process with necessary code
-        self.d = dict(request=None, content=None)
         self.run()
 
     def run(self):
-        # Initiate the connection to the server
-
         print("Connected to server\nReady for input:")
 
         while(True):
@@ -44,18 +36,13 @@ class Client:
 
         
     def disconnect(self):
-        # TODO: Handle disconnection
         self.connection.close()
 
     def receive_message(self, message):
-        # TODO: Handle incoming message
         print message
 
     def send_payload(self, data):
-        # TODO: Handle sending of a payload
         self.connection.send(json.dumps(data))
-        
-    # More methods may be needed!
 
     def check_msg(self, msg):
         req = ""
