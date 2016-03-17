@@ -97,10 +97,11 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         elif request == "logout":
             try:
                 removeClient(self.username)
+                self.send_message("info", self.username + " logged out... RIP! much sad")
+                self.connection.close()
             except:
                 pass
-            self.send_message(self, "Logout successful")
-            self.connection.close()
+
 
         elif request == "msg":
             if self.is_logged_in:
