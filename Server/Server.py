@@ -120,8 +120,11 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         elif msg["request"] == "help":
             self.send_local("info",help_text)
 
+        elif msg["request"] == "history":
+            self.send_local(msg["request"], getHistory())
+
         else:
-            self.send_local(self.make_dict("error","Message wrong"))
+            self.send_local("error", "Invalid command")
 
     def send_local(self, response, content, sender="Server"):
         self.connection.send(json.dumps(self.make_dict(response,content,sender)))

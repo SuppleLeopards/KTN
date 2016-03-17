@@ -36,14 +36,18 @@ class MessageParser:
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_hist(self, payload):
+        print(payload)
         histlist = []
         for dict in payload:
             histlist.append(dict)
-        histlist.sort(key=lambda d: d['timestamp'])
+        histlist.sort(key=lambda d: int(d['timestamp']))
         for dict in histlist:
-            self.parse_msg(dict)
+            print(self.parse_msg(dict))
 
     def parse_names(self, payload):
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
+
+    def timestamp_convert(self, timestamp):
+        return int(timestamp.replace(':', ''))
 
         # Include more methods for handling the different responses...
