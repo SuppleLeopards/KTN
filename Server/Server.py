@@ -98,8 +98,6 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 self.username = username
                 self.is_logged_in = True
                 addClient(username, self)
-                print(getClients())
-                print(self.username)
                 self.send_local("info", "Login was successful")
                 self.send_message("info", self.username + " logged in")
 
@@ -112,23 +110,22 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 self.send_message("msg", content, self.username)
             else:
                 self.send_local("error", "You are not logged in")
+
         elif request == "names":
             usernames = "\n" + '\n'.join(connected_clients)
             self.send_local("names", usernames)
 
-        #Må endres help skal sende liste over alle funskjoner
         elif msg["request"] == "help":
-            self.send_local("info",help_text)
+            self.send_local("info", help_text)
 
         else:
-            self.send_local(self.make_dict("error","Message wrong"))
+            self.send_local(self.make_dict("error", "Message wrong"))
 
     def send_local(self, response, content, sender="Server"):
-        self.connection.send(json.dumps(self.make_dict(response,content,sender)))
+        self.connection.send(json.dumps(self.make_dict(response, content, sender)))
 
     def send_message(self, response, content, sender="Server"):
         d = self.make_dict(response, content, sender)
-        #print(d)
         send_message(d, self.username)
 
     def make_dict(self, response, content, sender="Server"):
@@ -139,12 +136,14 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             self.connection.send(msg)
         except:
             removeClient(self.username)
-            self.connection.close()
+            self.logout()
 
     def logout(self):
-        removeClient(self.username)
-        self.send_message("info", self.username + " logged out... RIP! much sad")
-        self.connection.close()
+        if self.is_logged_in:
+            removeClient(self.username)
+            self.is_logged_in = False
+            self.send_message("info", self.username + " logged out... RIP! much sad")
+            self.connection.close()
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
@@ -168,14 +167,3 @@ if __name__ == "__main__":
     # Set up and initiate the TCP server
     server = ThreadedTCPServer((HOST, PORT), ClientHandler)
     server.serve_forever()
-"""
-Må gjøres:
-logout ikke korrekt implementert
-login ikke implementert
-må generellt lage ferdig alle behandlinger av innput samt recieved
-
-må også sørge for at serveren og klienten kan ta i mot mens en bruker skriver inn/ikke skriver inn
-=> en bruker skal ikke trenge å skrive noe for hver gang han skal ha en oppdatert chat.
-
-Serveren må kunne lagre navn samt ha en oversikt over alle navn som skal brukes
-"""

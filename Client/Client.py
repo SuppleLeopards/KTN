@@ -34,7 +34,7 @@ class Client:
     def run(self):
         # Initiate the connection to the server
 
-        print("Connected to server\nKlar for input")
+        print("Connected to server\nReady for input:")
 
         while(True):
             command = raw_input()
@@ -55,8 +55,6 @@ class Client:
         self.connection.send(json.dumps(data))
         
     # More methods may be needed!
-    def help(self):
-        pass
 
     def check_msg(self, msg):
         req = ""
