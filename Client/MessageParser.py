@@ -33,7 +33,7 @@ class MessageParser:
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
 
     def parse_msg(self, payload):
-        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
+        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + payload["content"]
 
     def parse_hist(self, payload):
         histlist = []
