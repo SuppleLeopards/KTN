@@ -29,7 +29,7 @@ class Client:
         
         # TODO: Finish init process with necessary code
         self.d = dict(request=None, content=None)
-        self.run()
+        self.run
 
     def run(self):
         # Initiate the connection to the server
@@ -70,22 +70,18 @@ class Client:
             req = msg
             con = None
         d = dict(request=req, content=con)
+        print("Sender:" + str(d))
         if req == "login" and not con == None:
-            print ("sender " + str(d))
             self.send_payload(d)
         elif req == "help":
-            print ("sender " + str(d))
             d["content"] = None
             self.send_payload(d)
         elif req == "logout":
-            print ("sender " + str(d))
             self.send_payload(d)
             self.disconnect()
         elif req == "msg" and not con == None:
-            print ("sender " + str(d))
             self.send_payload(d)
         elif req == "names":
-            print ("sender " + str(d))
             d["content"] = None
             self.send_payload(d)
         else:

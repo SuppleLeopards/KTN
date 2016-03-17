@@ -8,7 +8,8 @@ class MessageParser():
             'error': self.parse_error,
             'info': self.parse_info,
             "msg": self.parse_msg,
-            "history": self.parse_hist
+            "history": self.parse_hist,
+            "names": self.parse_names
 	    # More key:values pairs are needed	
         }
 
@@ -27,7 +28,9 @@ class MessageParser():
         return "Info: " + payload["content"]
     def parse_msg(self, payload):
         return payload["content"]
-    def parse_hist(sel, payload):
+    def parse_hist(self, payload):
+        pass
+    def parse_names(self,payload):
         pass
 
     # Include more methods for handling the different responses... 
