@@ -9,7 +9,7 @@ must be written here (e.g. a dictionary for connected clients)
 
 connected_clients = {}
 history = []
-help_text = 'Available requests:\n\
+help_text = '\nAvailable requests:\n\
             login <username> - log in with the given username\n\
             logout - log out\n\
             msg <message> - send message\n\
@@ -39,9 +39,13 @@ def username_Taken(username):
     return False
 
 def send_message(message, username):
+    history.append(message)
     for key in connected_clients.keys():
         if not key == username:
             connected_clients[key].connection.send(json.dumps(message))
+
+def send_history(username):
+    connected_clients[username].connection.send(json.dumps(history))
 
 
 def getHistory():
@@ -91,7 +95,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 addClient(username, self)
                 print(getClients())
                 print(self.username)
-                self.send_local("info", "Loggin was sucsessfull")
+                self.send_local("info", "Login was successful")
                 self.send_message("info", self.username + " logged in")
 
         elif request == "logout":
@@ -109,13 +113,12 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             else:
                 self.send_local("error", "You are not logged in")
         elif request == "names":
-            usernames = '\n'.join(connected_clients)
+            usernames = "\n" + '\n'.join(connected_clients)
             self.send_local("names", usernames)
 
         #Må endres help skal sende liste over alle funskjoner
         elif msg["request"] == "help":
-            usernames = '\n'.join(connected_clients)
-            self.send_message(usernames)
+            self.send_local("info",help_text)
 
         else:
             self.send_local(self.make_dict("error","Message wrong"))
