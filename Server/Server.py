@@ -33,10 +33,10 @@ def removeClient(username):
         return True
     else:
         return False
-def username_Not_Taken(username):
+def username_Taken(username):
     if username in connected_clients:
-        return False
-    return True
+        return True
+    return False
 
 
 def getHistory():
@@ -62,6 +62,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         self.port = self.client_address[1]
         self.connection = self.request
         self.username = ""
+        self.is_logged_in = False
         lol.add_thread(self)
 
         # Loop that listens for messages from the client
@@ -74,16 +75,19 @@ class ClientHandler(SocketServer.BaseRequestHandler):
     def handle_msg(self, msg):
         print(msg)
         request = msg["request"]
+        content = msg["content"]
+
         if request == "login":
             username = msg["content"]
-            if username_Not_Taken(username):
-                self.send_message("error", "The username " + username + " is already taken.")
+            if username_Taken(username):
+                self.send_local("error", "The username " + username + " is already taken.")
             else:
                 self.username = username
+                self.is_logged_in = True
                 connected_clients.append(self.username)
                 print(getClients())
                 print(self.username)
-                self.send_local(self.make_dict("info", "Login was sucsessful"))
+                self.send_local("info", "Loggin was sucsessfull")
                 self.send_message("info", self.username + " logged in")
 
         elif request == "logout":
@@ -95,11 +99,13 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             self.connection.close()
 
         elif request == "msg":
-            self.send_message(msg["content"])
-
+            if self.is_logged_in:
+                self.send_message("msg", content, self.username)
+            else:
+                self.send_local("error", "You are not logged in")
         elif request == "names":
             usernames = '\n'.join(connected_clients)
-            self.send_local(json.dumps(self.make_dict("names", usernames)))
+            self.send_local("names", usernames)
 
         #Må endres help skal sende liste over alle funskjoner
         elif msg["request"] == "help":
@@ -107,14 +113,14 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             self.send_message(usernames)
 
         else:
-            self.send_message("Invalid request.")
+            self.send_local(self.make_dict("error","Message wrong"))
 
-    def send_local(self, message):
-        self.connection.send(json.dumps(message))
+    def send_local(self, response, content, sender="Server"):
+        self.connection.send(json.dumps(self.make_dict(response,content,sender)))
 
     def send_message(self, response, content, sender="Server"):
         d = self.make_dict(response, content, sender)
-        print(d)
+        #print(d)
         lol.send_msg(json.dumps(d), self)
 
     def make_dict(self, response, content, sender="Server"):
