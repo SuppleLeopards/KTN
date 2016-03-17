@@ -3,6 +3,7 @@ import socket
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 import json
+import re
 
 class Client:
     """
@@ -59,10 +60,10 @@ class Client:
     def check_msg(self, msg):
         req = ""
         con = ""
-        msg = msg.strip()
+        msg = self.check_message(msg.strip())
         try:
             i = msg.index(" ")
-            req = msg[0:i]
+            req = msg[0:i].lower()
             con = msg[i+1:]
         except:
             req = msg
@@ -83,6 +84,10 @@ class Client:
             self.send_payload(d)
         else:
             print ("Invalid command")
+
+    def check_message(self, message):
+        pattern = "[a-zA-Z0-9.,-_() ]"
+        return "".join(re.findall(pattern, message))
 
 
 
