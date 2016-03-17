@@ -40,7 +40,8 @@ class MessageParser:
         for dict in payload:
             histlist.append(dict)
         histlist.sort(key=lambda d: d['timestamp'])
-        return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
+        for dict in histlist:
+            self.parse_msg(dict)
 
     def parse_names(self, payload):
         return "[" + payload["timestamp"] + "]" + " " + payload["sender"] + ": " + "(" + payload["response"] + ") " + payload["content"]
