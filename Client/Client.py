@@ -26,7 +26,6 @@ class Client:
         self.connection.connect((self.host, self.server_port))
         self.msgReceiver = MessageReceiver(self, self.connection)
         self.msgParser = MessageParser()
-        self.username  = ""
         
         # TODO: Finish init process with necessary code
         self.d = dict(request=None, content=None)
@@ -71,22 +70,18 @@ class Client:
             req = msg
             con = None
         d = dict(request=req, content=con)
-        if req == "logout":
-            print ("sender " + str(d))
-            self.send_payload(d)
-            self.disconnect()
-        elif req == "login" and not con == None:
-            print ("sender " + str(d))
-            self.send_payload(d)
-        elif req == "msg" and not con == None:
-            print ("sender " + str(d))
-            self.send_payload(d)
-        elif req == "names":
-            print ("sender " + str(d))
-            d["content"] = None
+        print("Sender:" + str(d))
+        if req == "login" and not con == None:
             self.send_payload(d)
         elif req == "help":
-            print ("sender " + str(d))
+            d["content"] = None
+            self.send_payload(d)
+        elif req == "logout":
+            self.send_payload(d)
+            self.disconnect()
+        elif req == "msg" and not con == None:
+            self.send_payload(d)
+        elif req == "names":
             d["content"] = None
             self.send_payload(d)
         else:

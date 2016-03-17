@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import SocketServer
 import json
-import time
-
+from time import strftime
 """
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
@@ -34,6 +33,10 @@ def removeClient(username):
         return True
     else:
         return False
+def username_Not_Taken(username):
+    if username in connected_clients:
+        return False
+    return True
 
 
 def getHistory():
@@ -69,35 +72,53 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             self.handle_msg(msg)
 
     def handle_msg(self, msg):
-        if msg["request"] == "login":
-            if msg["content"] in connected_clients:
-                self.send_message("The user " + msg["content"] + " is already logged in.")
+        print(msg)
+        request = msg["request"]
+        if request == "login":
+            username = msg["content"]
+            if username_Not_Taken(username):
+                self.send_message("error", "The username " + username + " is already taken.")
             else:
-                self.username = msg["content"]
-                connected_clients[self.username] = self
-                self.send_message("Login as " + self.username + " successful.")
+                self.username = username
+                connected_clients.append(self.username)
+                print(getClients())
+                print(self.username)
+                self.send_local(self.make_dict("info", "Login was sucsessful"))
+                self.send_message("info", self.username + " logged in")
 
-        elif msg["request"] == "logout":
-            del connected_clients[msg["content"]]
+        elif request == "logout":
+            try:
+                removeClient(self.username)
+            except:
+                pass
+            self.send_message(self, "Logout successful")
             self.connection.close()
 
-        elif msg["request"] == "msg":
+        elif request == "msg":
             self.send_message(msg["content"])
 
-        elif msg["request"] == "names":
-            usernames = ''.join(connected_clients.keys())
-            self.send_message(usernames)
+        elif request == "names":
+            usernames = '\n'.join(connected_clients)
+            self.send_local(json.dumps(self.make_dict("names", usernames)))
 
+        #Må endres help skal sende liste over alle funskjoner
         elif msg["request"] == "help":
-            usernames = ''.join(connected_clients.keys())
+            usernames = '\n'.join(connected_clients)
             self.send_message(usernames)
 
         else:
             self.send_message("Invalid request.")
 
-    def send_message(self, msg):
-        d = dict(timestamp=time.time(), sender=None, response="msg", content=msg)
+    def send_local(self, message):
+        self.connection.send(json.dumps(message))
+
+    def send_message(self, response, content, sender="Server"):
+        d = self.make_dict(response, content, sender)
+        print(d)
         lol.send_msg(json.dumps(d), self)
+
+    def make_dict(self, response, content, sender="Server"):
+        return dict(timestamp=strftime("%H:%M:%S"), sender=sender, response=response, content=content)
 
     def send_msg(self, msg, thread):
         if thread != self:
